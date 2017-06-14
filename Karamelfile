@@ -1,0 +1,5 @@
+dependencies:
+  - recipe: hopshosts::default
+    global:
+  - recipe: hopshosts::install
+    global:
