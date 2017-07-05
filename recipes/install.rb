@@ -5,6 +5,36 @@
 # Copyright:: 2017, The Authors, All Rights Reserved.
 #
 
+# Some fixes
+# 1. fatal error: gssapi/gssapi.h: No such file or directory
+# 2. mail, later
+case node["platform_family"]
+when "debian"
+  bash "apt_update_install_build_tools" do
+    user "root"
+    code <<-EOF
+   apt-get update -y
+
+   # Postfix
+   debconf-set-selections <<< "postfix postfix/mailname string hops.foglight.seld.rnd.ericsson.se"
+   debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
+   
+   apt-get install libkrb5-dev postfix mailutils -y
+
+   # Postfix
+   postconf -e "inet_interfaces = localhost" 
+   systemctl restart postfix
+
+   echo "Mail from hops works!!" | mail -s "Hopsworks can send mail!" robert.marklund@ericsson.com
+
+ EOF
+  end
+
+when "rhel"
+  package "libkrb5-devel" do 
+    action :install
+  end
+end
 
 domain = node[:domain]
 hostname = node[:hostname]
